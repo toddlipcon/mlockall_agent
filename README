@@ -1,0 +1,19 @@
+Overview:
+
+mlockall_agent is a simple JVMTI agent that runs a small piece of code at JVM start time.
+
+This code does the following:
+- Raises the current process's resource limit for locked memory
+- Calls mlockall() to lock all current and future allocations in wired memory
+- Sets the current userid and group list to match a target user
+- Continues on JVM initialization
+
+Usage:
+
+Simply add the following JVM argument to the Java command line:
+  -agentpath:/path/to/libmlockall_agent.so=user=target_user_for_setuid
+
+Then, run the Java process as root.
+
+If the Java command line is obscured within a script, you can also use the JAVA_TOOL_OPTIONS
+environment variable for the same effect.
