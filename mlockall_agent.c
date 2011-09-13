@@ -12,9 +12,6 @@
 #include <unistd.h>
 #include "jvmti.h"
 
-// The environment variable containing the user that will be setuid to
-#define USER_ENV "MLOCKALL_TARGET_USER"
-
 #define PREFIX "mlockall_agent: "
 #define LOG(fmt, ...) { fprintf(stderr, PREFIX fmt, ## __VA_ARGS__); }
 
