@@ -1,6 +1,7 @@
 // Copyright (c) 2011, Cloudera, inc. All rights reserved.
 
 #include <libgen.h>
+#include <grp.h>
 #include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,12 +21,21 @@ typedef struct opts {
 } opts_t;
 
 static int parse_options(char *options, opts_t *parsed) {
+  // Clear result
+  memset(parsed, 0, sizeof(*parsed));
+
+  // If no options string was specified, we get NULL, not an
+  // empty string.
+  if (options == NULL) return 0;
+
   char *dup = strdup(options);
   char *save = NULL, *save2 = NULL;
   char *tok;
   int ret = 0;
-  while ((tok = strtok_r(options, ",", &save)) != NULL) {
-    options = NULL;
+
+  char *strtok_arg = dup;
+  while ((tok = strtok_r(strtok_arg, ",", &save)) != NULL) {
+    strtok_arg = NULL;
     char *pair = strdup(tok);
 
     char *key = strtok_r(pair, "=", &save2);
@@ -45,6 +55,7 @@ static int parse_options(char *options, opts_t *parsed) {
     if (val) free(val);
     free(pair);
   }
+  free(dup);
   return ret;
 }
 
@@ -62,7 +73,7 @@ JNIEXPORT jint JNICALL Agent_OnLoad(JavaVM *vm, char *init_str, void *reserved) 
 
   // Check that the target user for setuid is specified.
   if (opts.setuid_user == NULL) {
-    LOG("Unable to setuid: specify a target username as the agent option user=<username>");
+    LOG("Unable to setuid: specify a target username as the agent option user=<username>\n");
     return 1;
   }
   
